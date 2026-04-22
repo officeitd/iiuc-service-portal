@@ -1,87 +1,57 @@
-import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from '@tanstack/react-router';
 import DashboardHeader from '@/components/DashboardHeader';
 import ServiceCard from '@/components/ServiceCard';
-import {
-  GraduationCap,
-  Users,
-  Bus,
-  BookOpen,
-  CreditCard,
-  Bell,
-  Settings,
-  BarChart3,
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { GraduationCap, Users, Bus, BookOpen, Globe } from 'lucide-react';
+import websitePreview from '@/assets/services/website.png';
+import portalPreview from '@/assets/services/portal.png';
+import hrdPreview from '@/assets/services/hrd.png';
+import transportPreview from '@/assets/services/transport.png';
+import libraryPreview from '@/assets/services/library.png';
 
 const services = [
   {
+    icon: Globe,
+    title: 'IIUC Website',
+    description:
+      'Official university website with news, events and information',
+    color: 'bg-primary/10 text-primary',
+    url: 'https://iiuc.ac.bd',
+    preview: websitePreview,
+  },
+  {
     icon: GraduationCap,
-    title: 'Student / Teacher Panel',
+    title: 'Student / Teacher Portal',
     description: 'Academic records, grades, course materials and schedules',
     color: 'bg-accent/10 text-accent',
-    roles: ['student', 'teacher', 'admin'],
+    url: 'https://portal.iiuc.ac.bd',
+    preview: portalPreview,
   },
   {
     icon: Users,
-    title: 'HRD System',
+    title: 'HRD IIUC',
     description: 'Employee management, payroll, attendance tracking',
     color: 'bg-gold/10 text-gold-foreground',
-    roles: ['admin', 'teacher'],
+    url: 'https://hrd.iiuc.ac.bd',
+    preview: hrdPreview,
   },
   {
     icon: Bus,
-    title: 'Transport System',
+    title: 'IIUC Transport',
     description: 'Bus tracking, schedules, routes and bookings',
     color: 'bg-success/10 text-success',
-    roles: ['student', 'teacher', 'admin'],
+    url: 'https://transport.iiuc.ac.bd',
+    preview: transportPreview,
   },
   {
     icon: BookOpen,
-    title: 'Library Portal',
+    title: 'Library',
     description: 'Digital library, e-books, journal access and reservations',
     color: 'bg-primary/10 text-primary',
-    roles: ['student', 'teacher', 'admin'],
-  },
-  {
-    icon: CreditCard,
-    title: 'Fee Management',
-    description: 'Tuition payments, fee structures and financial records',
-    color: 'bg-destructive/10 text-destructive',
-    roles: ['student', 'admin'],
-  },
-  {
-    icon: Bell,
-    title: 'Notice Board',
-    description: 'University announcements, events and important updates',
-    color: 'bg-accent/10 text-accent',
-    roles: ['student', 'teacher', 'admin'],
-  },
-  {
-    icon: BarChart3,
-    title: 'Analytics Dashboard',
-    description: 'Performance metrics, reports and institutional data',
-    color: 'bg-gold/10 text-gold-foreground',
-    roles: ['admin'],
-  },
-  {
-    icon: Settings,
-    title: 'System Settings',
-    description: 'Portal configuration, user management and access control',
-    color: 'bg-muted-foreground/10 text-muted-foreground',
-    roles: ['admin'],
+    url: 'https://library.iiuc.ac.bd',
+    preview: libraryPreview,
   },
 ];
 
 const Dashboard = () => {
-  const { user, isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) return <Navigate to='/login' />;
-
-  const availableServices = services.filter((s) =>
-    s.roles.includes(user!.role),
-  );
-
   const greeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -100,7 +70,7 @@ const Dashboard = () => {
           style={{ animationDelay: '0.1s' }}
         >
           <h1 className='text-2xl sm:text-3xl font-bold text-foreground'>
-            {greeting()}, {user?.name} 👋
+            {greeting()} 👋
           </h1>
           <p className='text-muted-foreground mt-1'>
             Access your university services from one place
@@ -108,8 +78,8 @@ const Dashboard = () => {
         </div>
 
         {/* Service grid */}
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'>
-          {availableServices.map((service, i) => (
+        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5'>
+          {services.map((service, i) => (
             <ServiceCard
               key={service.title}
               icon={service.icon}
@@ -117,7 +87,8 @@ const Dashboard = () => {
               description={service.description}
               color={service.color}
               delay={0.15 + i * 0.08}
-              onClick={() => toast.info(`${service.title} module coming soon!`)}
+              url={service.url}
+              preview={service.preview}
             />
           ))}
         </div>
