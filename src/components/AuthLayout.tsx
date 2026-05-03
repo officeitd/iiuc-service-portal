@@ -6,9 +6,17 @@ interface AuthLayoutProps {
   children: ReactNode;
   title: string;
   subtitle: string;
+  logoSrc?: string;
+  logoAlt?: string;
 }
 
-const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
+const AuthLayout = ({
+  children,
+  title,
+  subtitle,
+  logoSrc = iiucLogo,
+  logoAlt = 'IIUC Logo',
+}: AuthLayoutProps) => {
   return (
     <div className='relative flex min-h-screen'>
       {/* Left decorative panel */}
@@ -26,8 +34,8 @@ const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
           style={{ animationDelay: '0.2s' }}
         >
           <img
-            src={iiucLogo}
-            alt='IIUC Logo'
+            src={logoSrc}
+            alt={logoAlt}
             className='w-28 h-28 mx-auto mb-8'
             width={512}
             height={512}
@@ -49,8 +57,8 @@ const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
         >
           <div className='lg:hidden flex items-center gap-3 mb-8 justify-center'>
             <img
-              src={iiucLogo}
-              alt='IIUC Logo'
+              src={logoSrc}
+              alt={logoAlt}
               className='w-12 h-12'
               width={512}
               height={512}

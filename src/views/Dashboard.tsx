@@ -1,5 +1,7 @@
+import { Navigate } from '@tanstack/react-router';
 import DashboardHeader from '@/components/DashboardHeader';
 import ServiceCard from '@/components/ServiceCard';
+import { useAuth } from '@/contexts/AuthContext';
 import { GraduationCap, Users, Bus, BookOpen, Globe } from 'lucide-react';
 import websitePreview from '@/assets/services/website.png';
 import portalPreview from '@/assets/services/portal.png';
@@ -52,6 +54,16 @@ const services = [
 ];
 
 const Dashboard = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to='/login' />;
+  }
+
   const greeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';

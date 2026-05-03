@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
+import iiucLogo from '@/assets/logo.webp';
 import { useAuth, type UserRole } from '@/contexts/AuthContext';
 import AuthLayout from '@/components/AuthLayout';
 import { Button } from '@/components/ui/button';
@@ -18,15 +19,20 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('student');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
+
     try {
       await login(email, password, role);
       navigate({ to: '/dashboard' });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign in failed.');
     } finally {
       setLoading(false);
     }
@@ -34,6 +40,8 @@ const Login = () => {
 
   return (
     <AuthLayout
+      logoSrc={iiucLogo}
+      logoAlt='IIUC Shield'
       title='Welcome back'
       subtitle='Sign in to access your university services'
     >
@@ -94,6 +102,12 @@ const Login = () => {
             className='h-11'
           />
         </div>
+
+        {error ? (
+          <p className='rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive'>
+            {error}
+          </p>
+        ) : null}
 
         <Button
           type='submit'

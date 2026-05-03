@@ -6,10 +6,17 @@ import React, {
   type ReactNode,
 } from 'react';
 
+import {
+  getSessionFn,
+  loginFn,
+  logoutFn,
+  signupFn,
+} from '@/server/controllers/auth.controller';
+
 export type UserRole = 'student' | 'teacher' | 'admin';
 
 interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: UserRole;
@@ -18,8 +25,15 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (email: string, password: string, role: UserRole) => Promise<void>;
-  logout: () => void;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    role: UserRole,
+  ) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -32,44 +46,78 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem('iiuc_user');
-    if (stored) {
-      setUser(JSON.parse(stored));
-    }
+    let isMounted = true;
+
+    const loadSession = async () => {
+      try {
+        const session = await getSessionFn();
+        if (isMounted) {
+          setUser(session.user);
+        }
+      } catch {
+        if (isMounted) {
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadSession();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const login = async (email: string, _password: string, role: UserRole) => {
-    // Simulated login — replace with real API
-    await new Promise((r) => setTimeout(r, 800));
-    const newUser: User = {
-      id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`,
-      name:
-        role === 'admin'
-          ? 'Admin User'
-          : role === 'teacher'
-            ? 'Dr. Ahmed'
-            : 'Student User',
-      email,
-      role,
-    };
-    setUser(newUser);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('iiuc_user', JSON.stringify(newUser));
-    }
+  const login = async (email: string, password: string, role: UserRole) => {
+    const nextUser = await loginFn({
+      data: {
+        email,
+        password,
+        role,
+      },
+    });
+    setUser(nextUser);
   };
 
-  const logout = () => {
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    role: UserRole,
+  ) => {
+    const nextUser = await signupFn({
+      data: {
+        name,
+        email,
+        password,
+        role,
+      },
+    });
+    setUser(nextUser);
+  };
+
+  const logout = async () => {
+    await logoutFn();
     setUser(null);
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem('iiuc_user');
-    }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated: !!user, login, logout }}
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        login,
+        register,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

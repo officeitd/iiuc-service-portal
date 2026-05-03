@@ -13,15 +13,21 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('student');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [error, setError] = useState('');
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    setError('');
+
     try {
-      await login(email, password, role);
+      await register(name, email, password, role);
       navigate({ to: '/dashboard' });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed.');
     } finally {
       setLoading(false);
     }
@@ -98,6 +104,12 @@ const Register = () => {
             className='h-11'
           />
         </div>
+
+        {error ? (
+          <p className='rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive'>
+            {error}
+          </p>
+        ) : null}
 
         <Button
           type='submit'
